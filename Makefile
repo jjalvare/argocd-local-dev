@@ -1,11 +1,8 @@
-#the below is mac-specific
-#local=`pwd|cut -c7-`
-
-#if run in Codespaces, uncomment the following
-local=`pwd`
-
-local_folder="/minikube-host${local}/.git"
-
+cur:=$(shell pwd)
+who:=$(shell whoami)
+folder:=$(shell echo "$(cur)" | awk -F "$(who)" '{print $$2}' | xargs)
+local=$(who)$(folder)
+local_folder="/minikube-host/${local}/.git"
 all: start gitea repo argocd root portforward
 
 start:
