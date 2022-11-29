@@ -29,20 +29,11 @@ repo:
 
 argocd:
 	echo "Adding argocd helm repo"
-	@helm repo add argo https://argoproj.github.io/argo-helm >> /dev/null 2>&1  
-	@helm repo update  >> /dev/null 2>&1  
-
-	echo "installing ArgoCD..."
-	@helm upgrade --wait -i argocd -n argocd --create-namespace argo/argo-cd \
-	--set server.config."timeout\.reconciliation"="10s" \
-	--set configs.params."server\.disable\.auth"=true \
-	--set configs.params."server\.insecure"=true \
-	--set configs.repositories.local.name=local \
-	--set "configs.repositories.local.url=http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/local-repo.git" >> /dev/null 2>&1  
+	@cd bootstrap && make namespace argocd
 
 root:		
 	echo "Deploying root app"
-	kubectl apply -f root-app.yaml
+	kubectl apply -f bootstrap/root/root-app.yaml
 
 portforward:
 	echo "port forwarding"
