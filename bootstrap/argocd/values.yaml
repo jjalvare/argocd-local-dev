@@ -1,0 +1,44 @@
+argo-cd:
+  configs:
+    repositories:
+      - type: git
+        name: local
+        url: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/local-repo.git 
+      - type: helm
+        name: argo-cd
+        url: https://argoproj.github.io/argo-helm
+      - type: helm
+        name: bitnami
+        url: https://charts.bitnami.com/bitnami
+      - type: helm
+        name: jetstack
+        url: https://charts.jetstack.io
+    helm.valuesFileSchemes: >-
+      secrets+gpg-import, secrets+gpg-import-kubernetes,
+      secrets+age-import, secrets+age-import-kubernetes,
+      secrets,
+      https
+    params:
+      server.disable.auth: true 
+      server.insecure: true 
+      # repositories.local.name: local
+      # repositories.local.url: http://gitea-http.gitea.svc.cluster.local:3000/gitea_admin/local-repo.git
+  server:
+    extraArgs:
+      - --insecure
+    config:
+      statusbadge.enabled: 'true'
+      timeout.reconciliation: '10s'
+      resource.customizations.health.argoproj.io_Application: |
+        hs = {}
+        hs.status = "Progressing"
+        hs.message = ""
+        if obj.status ~= nil then
+          if obj.status.health ~= nil then
+            hs.status = obj.status.health.status
+            if obj.status.health.message ~= nil then
+              hs.message = obj.status.health.message
+            end
+          end
+        end
+        return hs
